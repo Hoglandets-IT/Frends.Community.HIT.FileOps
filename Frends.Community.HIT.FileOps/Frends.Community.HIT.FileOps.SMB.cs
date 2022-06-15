@@ -1,31 +1,74 @@
 ﻿using System.Text;
-using Newtonsoft.Json;
 using SharpCifs.Smb;
 
 #pragma warning disable 1591
 #pragma warning disable 8602
 
-namespace Frends.Community.HIT.FileOps.SMB
+namespace Frends.Community.HIT.FileOps
 {
     public class SMB
     {
+
+        public static string GetSMBConnectionString(
+            string server,
+            string user,
+            string password,
+            string domain = "",
+            string path = "",
+            string file = ""
+        )
+        {
+            var connectionString = new StringBuilder();
+            connectionString.Append("smb://");
+            if (!string.IsNullOrEmpty(domain))
+            {
+                connectionString.Append($"{domain};");
+            }
+            connectionString.Append($"{user}:{password}@");
+            connectionString.Append(server);
+            // Check if string starts with /, if not, add
+            if (!path.StartsWith("/"))
+            {
+                connectionString.Append("/");
+            }
+            connectionString.Append($"{path}");
+            
+            // Check if string ends with /, if not, add
+            if (path.Length > 0 && path.EndsWith("/") == false)
+            {
+                connectionString.Append("/");
+            }
+            connectionString.Append(file);
+
+            return connectionString.ToString();
+        }
+        /// <summary>
+        /// List files in directory on SMB share
+        /// Documentation: https://github.com/Hoglandets-IT/Frends.Community.HIT.FileOps
+        /// </summary>
+        public static ListResult ListFiles(SMBListInput input)
+        {
+            var folder = new SmbFile(input.Path);
+            var list = folder.ListFiles();
+
+            return new ListResult(true, list.Select(x => x.GetName()).ToList());
+        }
+
+        /// <summary>
+        /// Read file from SMB path
+        /// Documentation: https://github.com/Hoglandets-IT/Frends.Community.HIT.FileOps
+        /// </summary>
         public static ReadResult ReadFile(SMBReadInput input)
         {
             var file = new SmbFile(input.Path);
             String resultContent = "";
             Boolean resultSuccess = false;
+            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
 
             if (file.Exists())
             {
                 var readStream = file.GetInputStream();
                 var memStream = new MemoryStream();
-                Encoding encType = Encoding.GetEncoding(
-                    Enum.GetName(
-                        typeof(FileEncodings), input.OutputEncoding
-                    ).Replace(
-                        "_", "-"
-                    )
-                );
 
                 ((Stream)readStream).CopyTo(memStream);
                 readStream.Dispose();
@@ -35,23 +78,17 @@ namespace Frends.Community.HIT.FileOps.SMB
 
             }
             
-            return new ReadResult(resultSuccess, resultContent);
+            return new ReadResult(resultSuccess, resultContent, encType);
         }
-    }
 
-    public class SMBOld
-    {
-        public static WriteResult WriteFile(WriteInput input)
+        /// <summary>
+        /// Write file to SMB Path
+        /// Documentation: https://github.com/Hoglandets-IT/Frends.Community.HIT.FileOps
+        /// </summary>
+        public static WriteResult WriteFile(SMBWriteInput input)
         {
-
-            var smbString = "smb://";
-            if (!string.IsNullOrEmpty(input.Domain))
-            {
-                smbString += input.Domain + ";";
-            }
-            smbString += input.Username + ":" + input.Password + "@" + input.Path;
-
-            var file = new SmbFile(smbString);
+            var file = new SmbFile(input.Path);
+            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
 
             if (!file.Exists())
             {
@@ -70,47 +107,10 @@ namespace Frends.Community.HIT.FileOps.SMB
             }
 
             var writeStream = file.GetOutputStream();
-
-            writeStream.Write(Encoding.UTF8.GetBytes(input.Content));
-
+            writeStream.Write(encType.GetBytes(input.Content));
             writeStream.Dispose();
 
-            return new WriteResult(true);
-
-        }
-
-        public static CopyResult CopyFile(CopyInput input)
-        {
-            var readOpts = new ReadInput();
-            readOpts.Path = input.SourcePath;
-            readOpts.Domain = input.SourceDomain;
-            readOpts.Username = input.SourceUsername;
-            readOpts.Password = input.SourcePassword;
-
-            var writeOpts = new WriteInput();
-            writeOpts.Path = input.DestPath;
-            writeOpts.Domain = input.DestinationDomain;
-            writeOpts.Username = input.DestinationUsername;
-            writeOpts.Password = input.DestinationPassword;
-            writeOpts.Overwrite = input.Overwrite;
-
-            var file = ReadFile(readOpts);
-            writeOpts.Content = file.ResultData;
-
-            var result = WriteFile(writeOpts);
-
-            return new CopyResult(result.Success);
-        }
-
-        public static JsonMoveResult JsonMove(JsonMoveInput input)
-        {
-            List<CopyInput> files = JsonConvert.DeserializeObject<List<CopyInput>>(input.SettingJson);
-
-            foreach (CopyInput copyOpts in files) {
-                CopyFile(copyOpts);
-            }
-
-            return new JsonMoveResult(true);
+            return new WriteResult(true, encType);
         }
     }
 }

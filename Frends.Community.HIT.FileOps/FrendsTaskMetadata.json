@@ -1,25 +1,10 @@
 {
     "Tasks": [
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.LoadServerConfig"
+            "TaskMethod": "Frends.Community.HIT.FileOps.General.CopyFiles"
         },
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.LoadFileConfig"
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.TransferFile"
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.GetFile"
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.PutFile"
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SFTP.GetFile"    
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SFTP.PutFile"    
+            "TaskMethod": "Frends.Community.HIT.FileOps.SFTP.ListFiles"
         },
         {
             "TaskMethod": "Frends.Community.HIT.FileOps.SFTP.ReadFile"    
@@ -28,16 +13,13 @@
             "TaskMethod": "Frends.Community.HIT.FileOps.SFTP.WriteFile"    
         },
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.SMB.GetFile"
+            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.ListFiles"
         },
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.SMB.PutFile"
+            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.ReadFile"
         },
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.SMB.ReadFile"
-        },
-        {
-            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.SMB.WriteFile"
+            "TaskMethod": "Frends.Community.HIT.FileOps.SMB.WriteFile"
         }
     ]
 }

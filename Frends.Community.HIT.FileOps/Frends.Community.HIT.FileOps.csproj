@@ -3,8 +3,7 @@
   <PropertyGroup>
     <authors>Höglandets IT</authors>
     <copyright>Copyright © 2022 Höglandets IT</copyright>
-    <PackageLicenseExpression>GNUv3</PackageLicenseExpression>
-    <OutputType>Exe</OutputType>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Hoglandets-IT/Frends.Community.HIT.FileOps</PackageProjectUrl>
     <Description>Tasks for file operations from a K3s/K8s-cluster to SMB, SFTP and other protocols</Description>
     <TargetFramework>net6.0</TargetFramework>
@@ -32,5 +31,6 @@
       <PackageReference Include="SharpCifs.Core" Version="0.2.3" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
       <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+      <PackageReference Include="SSH.NET" Version="2020.0.1" />
   </ItemGroup>
 </Project>
