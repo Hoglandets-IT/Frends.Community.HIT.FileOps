@@ -33,7 +33,7 @@ namespace Frends.Community.HIT.FileOps
         /// <param name="server">Server settings</param>
         public static ReadResult ReadFile(SFTPReadInput input, SFTPServerSettings server)
         {
-            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
+            Encoding encType = HelperFunctions.TranslateEncoding.GetEncoding(input.Encoding);
             
             using (var client = new SftpClient(server.GetConnectionInfo()))
             {
@@ -53,7 +53,7 @@ namespace Frends.Community.HIT.FileOps
         /// <param name="server">Server settings</param>
         public static WriteResult WriteFile(SFTPWriteInput input, SFTPServerSettings server)
          {
-            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
+            Encoding encType = HelperFunctions.TranslateEncoding.GetEncoding(input.Encoding);
 
             using (var client = new SftpClient(server.GetConnectionInfo()))
             {

@@ -18,21 +18,8 @@ namespace Frends.Community.HIT.FileOps
     public enum ServerTypes
     {
         SMB,
-        SFTP
-    }
-
-    public static class TranslateEncoding
-    {
-       public static Encoding GetEncoding(FileEncodings encoding) {
-            Encoding enc = Encoding.GetEncoding(
-                    Enum.GetName(
-                        typeof(FileEncodings), encoding
-                    ).Replace(
-                        "_", "-"
-                    )
-                );
-            return enc;
-        }
+        SFTP,
+        FTP
     }
 
     public class ListResult
@@ -214,7 +201,11 @@ namespace Frends.Community.HIT.FileOps
         {
             if (serverType == "SFTP") {
                 ServerType = ServerTypes.SFTP;
-            } else {
+            } 
+            else if (serverType == "FTP"){
+                ServerType = ServerTypes.FTP;
+            }    
+            else {
                 ServerType = ServerTypes.SMB;
             }
             Server = server;

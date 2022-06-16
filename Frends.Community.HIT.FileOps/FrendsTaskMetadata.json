@@ -1,7 +1,7 @@
 {
     "Tasks": [
         {
-            "TaskMethod": "Frends.Community.HIT.FileOps.General.CreateMoveItem"
+            "TaskMethod": "Frends.Community.HIT.FileOps.General.CreateMoveObject"
         },
         {
             "TaskMethod": "Frends.Community.HIT.FileOps.General.CopyFiles"

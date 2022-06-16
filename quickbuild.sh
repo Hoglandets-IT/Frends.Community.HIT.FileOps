@@ -1,5 +1,5 @@
-VER=$1
-KEY=$2
+VER=$2
+KEY=$1
 rm -f ./Frends.Community.HIT.FileOps.*.nupkg && \
 dotnet build --configuration Release /p:Version=$VER && \
 dotnet pack --configuration Release /p:Version=$VER --no-build --include-source --output . && \

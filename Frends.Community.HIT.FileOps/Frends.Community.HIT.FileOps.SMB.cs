@@ -63,7 +63,7 @@ namespace Frends.Community.HIT.FileOps
             var file = new SmbFile(input.Path);
             String resultContent = "";
             Boolean resultSuccess = false;
-            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
+            Encoding encType = HelperFunctions.TranslateEncoding.GetEncoding(input.Encoding);
 
             if (file.Exists())
             {
@@ -88,7 +88,7 @@ namespace Frends.Community.HIT.FileOps
         public static WriteResult WriteFile(SMBWriteInput input)
         {
             var file = new SmbFile(input.Path);
-            Encoding encType = TranslateEncoding.GetEncoding(input.Encoding);
+            Encoding encType = HelperFunctions.TranslateEncoding.GetEncoding(input.Encoding);
 
             if (!file.Exists())
             {

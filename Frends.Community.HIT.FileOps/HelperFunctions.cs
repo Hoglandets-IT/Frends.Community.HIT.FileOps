@@ -11,6 +11,20 @@ namespace Frends.Community.HIT.FileOps
 {
     class HelperFunctions
     {
+        public static class TranslateEncoding
+        {
+            public static Encoding GetEncoding(FileEncodings encoding) {
+                Encoding enc = Encoding.GetEncoding(
+                        Enum.GetName(
+                            typeof(FileEncodings), encoding
+                        ).Replace(
+                            "_", "-"
+                        )
+                    );
+                return enc;
+            }
+        }
+
         public static List<string> GetMatchingFiles(string SMBUrl, string path, string pattern)
         {
             var filesInFolder = SMB.ListFiles(new SMBListInput(SMBUrl));
@@ -28,6 +42,19 @@ namespace Frends.Community.HIT.FileOps
         {
             var filesInFolder = SFTP.ListFiles(new SFTPListInput(path), server);
 
+            List<string> regexMatches = new List<string>(
+                filesInFolder.ResultData.Where(
+                    x => Regex.IsMatch(x, pattern)
+                )
+            );
+
+            return regexMatches;
+        }
+
+        public static List<string> GetMatchingFiles(FTPServerSettings server, string path, string pattern)
+        {
+            var filesInFolder = FTP.ListFiles(new FTPListInput(path), server);
+            
             List<string> regexMatches = new List<string>(
                 filesInFolder.ResultData.Where(
                     x => Regex.IsMatch(x, pattern)
@@ -124,6 +151,36 @@ namespace Frends.Community.HIT.FileOps
                         sourceContent.Add(file, fileContent.ResultData);
                     }
                 }
+                else if (sourceServer.ServerType == ServerTypes.FTP) {
+                    var FTPServer = new FTPServerSettings(
+                        server: sourceServer.Server,
+                        username: sourceServer.Username,
+                        password: sourceServer.Password
+                    );
+
+                    var files = GetMatchingFiles(
+                        FTPServer,
+                        moveObject.SourcePath,
+                        moveObject.SourcePattern
+                    );
+
+                    foreach (var file in files) {
+                        var path = moveObject.SourcePath;
+                        if (path.EndsWith("/") == false) {
+                            path += "/";
+                        }
+                        path += file;
+
+                        var fileContent = FTP.ReadFile(
+                            new FTPReadInput(
+                               path
+                            ),
+                            FTPServer
+                        );
+
+                        sourceContent.Add(file, fileContent.ResultData);
+                    }
+                }
                 else {
                     var SFTPServer = new SFTPServerSettings(
                         sourceServer.Server,
@@ -182,6 +239,32 @@ namespace Frends.Community.HIT.FileOps
                                 moveObject.Overwrite
                             )
                         );
+                        copiedFiles.Add(countFiles, GetTransferLogItem(logSrcUrl, entry.Key, logDstUrl, destinationFilename));
+                        countFiles++;
+                    }
+                }
+                else if (destinationServer.ServerType == ServerTypes.FTP) {
+                    var FTPServer = new FTPServerSettings(
+                        server: sourceServer.Server,
+                        username: sourceServer.Username,
+                        password: sourceServer.Password
+                    );
+
+                    foreach (KeyValuePair<string, string> entry in sourceContent) {
+                        var destinationFilename = GenerateDestinationFilename(entry.Key, moveObject.DestinationFilename);
+                        var destinationPath = moveObject.DestinationPath;
+                        if (destinationPath.EndsWith("/") == false) {
+                            destinationPath += "/";
+                        }
+                        FTP.WriteFile(
+                            new FTPWriteInput(
+                                destinationPath + destinationFilename,
+                                entry.Value,
+                                moveObject.Overwrite
+                            ),
+                            FTPServer
+                        );
+
                         copiedFiles.Add(countFiles, GetTransferLogItem(logSrcUrl, entry.Key, logDstUrl, destinationFilename));
                         countFiles++;
                     }
