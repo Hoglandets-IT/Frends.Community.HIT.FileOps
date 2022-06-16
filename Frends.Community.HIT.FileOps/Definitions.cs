@@ -124,12 +124,12 @@ namespace Frends.Community.HIT.FileOps
         /// <summary>
         /// The paths that were copied (src: dst)
         /// </summary>
-        public Dictionary<string, string> Paths { get; set; }
+        public Dictionary<int, string> Paths { get; set; }
         
         public CopyResult(
             bool success,
             int filesCopied,
-            Dictionary<string, string> paths
+            Dictionary<int, string> paths
         )
         {
             Success = success;
@@ -228,51 +228,205 @@ namespace Frends.Community.HIT.FileOps
 
     public class MoveObject
     {
+        /// <summary>
+        /// The unique GUID
+        /// </summary>
         [DefaultValue(0)]
-        public int ObjectID { get; set; }
+        public string ObjectGuid { get; set; }
 
+        /// <summary>
+        /// The source server to get files from
+        /// Needs to be a key in the server configuration file
+        /// </summary>
         [DefaultValue(@"")]
-        public string SourceServer { get; set; }
+        public string SourceServerEnvironment { get; set; }
 
+        /// <summary>
+        /// The path on the source server
+        /// For SMB: ShareName/folder/path/
+        /// For SFTP/SCP: /root/folder or folder/nonroot/
+        /// </summary>
         [DefaultValue(@"")]
         public string SourcePath { get; set; }
-
+        
+        /// <summary>
+        /// The regex pattern to match files to move
+        /// </summary>
         [DefaultValue(@"")]
         public string SourcePattern { get; set; }
 
+        /// <summary>
+        /// The destination server to move files to
+        /// Needs to be a key in the server configuration file
+        /// </summary>
         [DefaultValue(@"")]
-        public string DestinationServer { get; set; }
+        public string DestinationServerEnvironment { get; set; }
 
+        /// <summary>
+        /// The path on the destination server
+        /// For SMB: ShareName/folder/path/
+        /// For SFTP/SCP: /root/folder or folder/nonroot/
+        /// </summary>
         [DefaultValue(@"")]
         public string DestinationPath { get; set; }
 
+        /// <summary>
+        /// The filename to set on the destination server
+        /// Available placeholders:
+        /// {source_filename}: Source filename
+        /// {date}: YYYY-mm-dd date
+        /// {time}: hh-mm-ss time
+        /// {guid}: Random GUID
+        /// {sequential}: A sequential number unique for the ObjectGUID
+        /// </summary>
         [DefaultValue(@"")]
         public string DestinationFilename { get; set; }
 
+        /// <summary>
+        /// Whether to overwrite the destination file if it exists
+        /// </summary>
         [DefaultValue(false)]
         public bool Overwrite { get; set; }
 
         [JsonConstructor]
         public MoveObject(
-            int objectID,
-            string sourceServer,
+            string objectGuid,
+            string sourceServerEnvironment,
             string sourcePath,
             string sourcePattern,
-            string destinationServer,
+            string destinationServerEnvironment,
             string destinationPath,
             string destinationFilename,
             bool overwrite
         )
         {
-            SourceServer = sourceServer;
+            ObjectGuid = objectGuid;
+            SourceServerEnvironment = sourceServerEnvironment;
             SourcePath = sourcePath;
             SourcePattern = sourcePattern;
-            DestinationServer = destinationServer;
+            DestinationServerEnvironment = destinationServerEnvironment;
             DestinationPath = destinationPath;
             DestinationFilename = destinationFilename;
             Overwrite = overwrite;
         }
+
+        public bool IsValid()
+        {
+            return !string.IsNullOrEmpty(ObjectGuid) &&
+                !string.IsNullOrEmpty(SourceServerEnvironment) &&
+                !string.IsNullOrEmpty(SourcePath) &&
+                !string.IsNullOrEmpty(SourcePattern) &&
+                !string.IsNullOrEmpty(DestinationServerEnvironment) &&
+                !string.IsNullOrEmpty(DestinationPath) &&
+                !string.IsNullOrEmpty(DestinationFilename);
+        }
     }
 
+    public class MoveObjectInput
+    {
+        /// <summary>
+        /// The unique GUID
+        /// </summary>
+        [DefaultValue(0)]
+        public string ObjectGuid { get; set; }
 
+        /// <summary>
+        /// The source server to get files from
+        /// Needs to be a key in the server configuration file
+        /// </summary>
+        [DefaultValue(@"")]
+        public string SourceServerEnvironment { get; set; }
+
+        /// <summary>
+        /// The path on the source server
+        /// For SMB: ShareName/folder/path/
+        /// For SFTP/SCP: /root/folder or folder/nonroot/
+        /// </summary>
+        [DefaultValue(@"")]
+        public string SourcePath { get; set; }
+        
+        /// <summary>
+        /// The regex pattern to match files to move
+        /// </summary>
+        [DefaultValue(@"")]
+        public string SourcePattern { get; set; }
+
+        /// <summary>
+        /// The destination server to move files to
+        /// Needs to be a key in the server configuration file
+        /// </summary>
+        [DefaultValue(@"")]
+        public string DestinationServerEnvironment { get; set; }
+
+        /// <summary>
+        /// The path on the destination server
+        /// For SMB: ShareName/folder/path/
+        /// For SFTP/SCP: /root/folder or folder/nonroot/
+        /// </summary>
+        [DefaultValue(@"")]
+        public string DestinationPath { get; set; }
+
+        /// <summary>
+        /// The filename to set on the destination server
+        /// Available placeholders:
+        /// {source_filename}: Source filename
+        /// {date}: YYYY-mm-dd date
+        /// {time}: hh-mm-ss time
+        /// {guid}: Random GUID
+        /// {sequential}: A sequential number unique for the ObjectGUID
+        /// </summary>
+        [DefaultValue(@"")]
+        public string DestinationFilename { get; set; }
+
+        /// <summary>
+        /// Whether to overwrite the destination file if it exists
+        /// </summary>
+        [DefaultValue(false)]
+        public bool Overwrite { get; set; }
+    }
+
+    public class MoveItemOutput 
+    {
+        /// <summary>
+        /// Whether the object is valid
+        /// </summary>
+        /// <value></value>
+        [DefaultValue(true)]
+        public bool Valid { get; set; }
+
+        /// <summary>
+        /// The move object
+        /// </summary>
+        public MoveObject Mover { get; set; }
+
+        public MoveItemOutput(
+            bool valid,
+            MoveObject mover
+        ) {
+            Valid = valid;
+            Mover = mover;
+        }
+    }
+
+    public class JoinMoveItemsInput
+    {
+        /// <summary>
+        /// The move objects to join
+        /// </summary>
+        public List<MoveObject> MoveObjects { get; set; }
+    }
+
+    public class JoinMoveItemsOutput
+    {
+        /// <summary>
+        /// A complete JSON string of the move objects
+        /// </summary>
+        public string MoveObjects { get; set; }
+
+        public JoinMoveItemsOutput(
+            string moveObjects
+        ) {
+            MoveObjects = moveObjects;
+        }
+    }
 }
