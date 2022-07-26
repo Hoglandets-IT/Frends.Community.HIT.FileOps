@@ -41,5 +41,10 @@ namespace Frends.Community.HIT.FileOps
 
             return HelperFunctions.DoFileCopy(actualObjects.ToArray());
         }
+
+        public static CopyResult CopyFile(MoveObject ObjectToMove)
+        {
+            return CopyFiles(new dynamic[] { ObjectToMove });
+        }
     }
 }

@@ -4,6 +4,9 @@
             "TaskMethod": "Frends.Community.HIT.FileOps.General.CreateMoveObject"
         },
         {
+            "TaskMethod": "Frends.Community.HIT.FileOps.General.CopyFile"
+        },
+        {
             "TaskMethod": "Frends.Community.HIT.FileOps.General.CopyFiles"
         },
         {
@@ -23,6 +26,15 @@
         },
         {
             "TaskMethod": "Frends.Community.HIT.FileOps.SMB.WriteFile"
+        },
+        {
+            "TaskMethod": "Frends.Community.HIT.FileOps.FTP.ListFiles"
+        },
+        {
+            "TaskMethod": "Frends.Community.HIT.FileOps.FTP.ReadFile"
+        },
+        {
+            "TaskMethod": "Frends.Community.HIT.FileOps.FTP.WriteFile"
         }
     ]
 }

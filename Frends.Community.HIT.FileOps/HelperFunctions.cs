@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Renci.SshNet;
@@ -68,6 +69,11 @@ namespace Frends.Community.HIT.FileOps
         {
             if (destPattern == @"{source_filename}") {
                 return sourceFile;
+            }
+
+            if (destPattern.Contains(@"{source_filename}")) {
+                var file_no_ext = System.IO.Path.GetFileNameWithoutExtension(sourceFile);
+                destPattern = destPattern.Replace(@"{source_filename}", file_no_ext);
             }
 
             if (destPattern.Contains(@"{date}")) {
